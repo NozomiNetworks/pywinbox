@@ -1,5 +1,4 @@
 from winbox.message import Frame
-from winbox.message import Message
 
 
 class Rule:

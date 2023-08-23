@@ -23,13 +23,13 @@ def _modinv(a: int, p: int):
 
 
 def _legendre_symbol(a: int, p: int):
-    l = pow(a, (p - 1)//2, p)
-    if l == p - 1:
+    legendre = pow(a, (p - 1)//2, p)
+    if legendre == p - 1:
         return -1
-    return l
+    return legendre
 
 
-# courtesy of Phong (https://codereview.stackexchange.com/questions/43210/tonelli-shanks-algorithm-implementation-of-prime-modular-square-root)
+# courtesy of Phong (https://codereview.stackexchange.com/questions/43210/tonelli-shanks-algorithm-implementation-of-prime-modular-square-root) # noqa:E501
 def _prime_mod_sqrt(a: int, p: int):
 
     a %= p
@@ -82,7 +82,7 @@ class WCurve:
         self.__a = 0x2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa984914a144
         self.__b = 0x7b425ed097b425ed097b425ed097b425ed097b425ed097b4260b5e9c7710c864
         self.__h = 8
-        self.__curve = ecdsa.ellipticcurve.CurveFp(self.__p, self.__a, self.__b,self. __h)
+        self.__curve = ecdsa.ellipticcurve.CurveFp(self.__p, self.__a, self.__b, self. __h)
         self.__g = self.lift_x(9, 0)
 
     # accomplishes priv * g in weighted projective form and converts the
@@ -95,13 +95,13 @@ class WCurve:
         return self.to_montgomery(pt)
 
     # converts the point to Weierstrass affine (if not already) and then to Montgomery
-    # returns parity of the y coordinate 
+    # returns parity of the y coordinate
     def to_montgomery(self, pt):
         assert type(pt) == ecdsa.ellipticcurve.PointJacobi or type(pt) == ecdsa.ellipticcurve.Point
         x = (pt.x() + self.__conversion) % self.__p
         return int(x).to_bytes(32, "big"), pt.y() & 1
 
-    # finds point P = (x, y) given x and converts to Weierstrass affine form 
+    # finds point P = (x, y) given x and converts to Weierstrass affine form
     # returns either the even or odd y coordinate based on the input boolean
     def lift_x(self, x: int, parity: bool):
         x = x % self.__p
@@ -110,14 +110,16 @@ class WCurve:
         x %= self.__p
         ys = _prime_mod_sqrt(y_squared, self.__p)
         if ys != []:
-            pt1 = ecdsa.ellipticcurve.PointJacobi(self.__curve, 
-                x, ys[0], 1, self.__r)
-            pt2 = ecdsa.ellipticcurve.PointJacobi(self.__curve, 
-                x, ys[1], 1, self.__r)
-            if pt1.y() & 1 == 1 and parity != 0:   return pt1
-            elif pt2.y() & 1 == 1 and parity != 0: return pt2
-            elif pt1.y() & 1 == 0 and parity == 0: return pt1
-            else:                                  return pt2
+            pt1 = ecdsa.ellipticcurve.PointJacobi(self.__curve, x, ys[0], 1, self.__r)
+            pt2 = ecdsa.ellipticcurve.PointJacobi(self.__curve, x, ys[1], 1, self.__r)
+            if pt1.y() & 1 == 1 and parity != 0:
+                return pt1
+            elif pt2.y() & 1 == 1 and parity != 0:
+                return pt2
+            elif pt1.y() & 1 == 0 and parity == 0:
+                return pt1
+            else:
+                return pt2
         else:
             return -1
 
