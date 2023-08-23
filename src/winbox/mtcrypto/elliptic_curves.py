@@ -97,7 +97,7 @@ class WCurve:
     # converts the point to Weierstrass affine (if not already) and then to Montgomery
     # returns parity of the y coordinate
     def to_montgomery(self, pt):
-        assert type(pt) == ecdsa.ellipticcurve.PointJacobi or type(pt) == ecdsa.ellipticcurve.Point
+        assert isinstance(pt, (ecdsa.ellipticcurve.PointJacobi, ecdsa.ellipticcurve.Point))
         x = (pt.x() + self.__conversion) % self.__p
         return int(x).to_bytes(32, "big"), pt.y() & 1
 
