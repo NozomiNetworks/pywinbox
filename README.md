@@ -115,7 +115,7 @@ platform=MikroTik
 board=x86
 ```
 
-# Acknoledgements
+# Acknowledgements
 
 - https://github.com/tenable/routeros/blob/master/poc/bytheway/README.md
 - https://www.zscaler.es/blogs/security-research/glupteba-campaign-exploits-mikrotik-routers-still-large
