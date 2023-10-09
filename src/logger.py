@@ -42,7 +42,7 @@ def logger_init(config: SectionProxy):
         log_indent = None
 
 
-def log(dataset: str, session=None, event_raw=None, **kwargs):
+def log(dataset: str, session=None, conn_reader=None, event_raw=None, **kwargs):
 
     global colored
     global console
@@ -58,14 +58,18 @@ def log(dataset: str, session=None, event_raw=None, **kwargs):
     if 'message' in kwargs:
         log_dict['message'] = kwargs.pop('message')
 
-    if session is not None:
-        transport = session.client_reader._transport
+    if session or conn_reader:
+        if session is not None:
+            conn_reader = session.client_reader
+            log_dict['session.id'] = session.id
+        else:
+            log_dict['session.id'] = ""
+
+        transport = conn_reader._transport
         log_dict['source.ip'] = transport.get_extra_info('peername')[0]
         log_dict['source.port'] = transport.get_extra_info('peername')[1]
         log_dict['destination.ip'] = transport.get_extra_info('sockname')[0]
         log_dict['destination.port'] = transport.get_extra_info('sockname')[1]
-
-        log_dict['session.id'] = session.id
 
     if event_raw is not None:
         log_dict['event.raw'] = event_raw

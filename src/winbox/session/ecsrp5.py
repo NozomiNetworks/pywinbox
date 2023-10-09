@@ -5,7 +5,7 @@ from logger import log
 from winbox.message import Message
 from winbox.mtcrypto import encryption
 from winbox.mtcrypto import elliptic_curves
-from winbox.session.session import ClientMgr, UpstreamMgr
+from winbox.session.session import ClientMgr, UpstreamMgr, InvalidUsername
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA1
 from Crypto.Util.Padding import pad, unpad
@@ -51,8 +51,7 @@ class Client(ClientMgr):
         self.username = (data[:nullbyte]).decode("utf-8")
         self.x_w_a = data[nullbyte + 1:]
         if not self.check_username():
-            log('exception', message=f'invalid username {self.username}')
-            return -1
+            raise InvalidUsername(self.username)
         if len(self.x_w_a) != 0x21:
             log('exception', message='invalid client public key length')
             return -1
@@ -237,6 +236,7 @@ class Client(ClientMgr):
 
     # check username dictionary for request username and sets salt, x_gamma, gamma_parity
     def check_username(self):
+        log('info', message=f'Trying to log in using \'{self.username}\' username')
         if self.username in self.users:
             self.salt, self.x_gamma = self.users[self.username]
             self.gamma_parity = self.x_gamma[-1]

@@ -9,6 +9,10 @@ BUFFER_SIZE: int = 4096
 TIMEOUT: int = 2
 
 
+class InvalidUsername(Exception):
+    pass
+
+
 class Session:
     id: UUID
     client_reader: asyncio.StreamReader
