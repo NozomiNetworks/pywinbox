@@ -13,7 +13,7 @@ from logger import logger_init, log
 from detection.engine import Engine
 from configparser import ConfigParser
 from winbox.message import Frame, Message
-from winbox.session.session import Session
+from winbox.session.session import Session, InvalidUsername
 from winbox.variable_name import VariableName
 
 
@@ -110,6 +110,8 @@ class Pywinbox:
             except (ConnectionResetError, ConnectionAbortedError):
                 log('warning', session=session, message='downstream disconnected')
                 break
+            except InvalidUsername as why:
+                log('exception', message=f'Invalid login username: {why}')
             except Exception as e:
                 if data is not None:
                     data = data.hex()
@@ -265,7 +267,9 @@ class Pywinbox:
         elif sys_to == [13, 4]:
             if sys_cmd == 1:
                 # login
-                log('explanation', session=session, message='Login > Login')
+                username = msg.get_variable('string.1').value
+                password = msg.get_variable('string.3').value
+                log('explanation', session=session, message='Login > Login', username=username, password=password)
                 ret_command = Command.LOGIN_LOGIN
             if sys_cmd == 4:
                 # hash request
